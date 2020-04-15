@@ -25,11 +25,14 @@ app.get('/location', (request, response) => {
 // weather location 
 app.get('/weather', (request, response) => {
     let weatherData = require('./data/darksky.json');
-    let city = request.query.city;
-    let formattedObj = new WeatherData(city, weatherData);
+    // let city = request.query.city;
+    // let formattedObj = new WeatherData(city, weatherData);
 
-    let weather = [];
-    weather.push(formattedObj);
+    let weather = []; 
+    weatherData.data.forEach(day => {
+        weather.push(new WeatherData(day))
+    }); 
+    // weather.push();
     response.status(200).send(weather);
 })
 
@@ -43,11 +46,10 @@ this.latitude = locationData[0].lat;
 this.longitude = locationData[0].lon;
 }
 
-function WeatherData(city, weatherData) {
-this.time = weatherData.data.datetime;
-this.forecast = weatherData.data.weather.description;   
+function WeatherData(day) {
+    this.forecast = day.weather.description;   
+    this.time = day.datetime;
 }
-
 
 
 app.use('*', (request, response) => response.send('Sorry, that route does not exist.'));
