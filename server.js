@@ -44,15 +44,9 @@ this.longitude = locationData[0].lon;
 }
 
 function WeatherData(city, weatherData) {
-    this.time = weatherData.data.datetime;
-    this.forecast = weatherData.data.weather.description;
-    
-    }
-
-
-
-
-
+this.time = weatherData.data.datetime;
+this.forecast = weatherData.data.weather.description;   
+}
 
 
 
