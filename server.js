@@ -3,6 +3,7 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const superagent = require('superagent');
 const cors = require('cors');
 app.use(cors());
 const PORT = process.env.PORT || 3001;
@@ -14,24 +15,27 @@ app.listen(PORT,() => console.log(`Listening on port ${PORT}`));
 
 app.get('/location', (request, response) => {
 
-    let locationData = require('./data/geo.json');
-    let city = request.query.city;
-    //constructor logic
-    let formattedObj = new City(city, locationData);
-    
-    response.status(200).send(formattedObj);
+    try{    
+        let city = request.query.city;
+        let key = process.env.GEOCODE_API_KEY;
+        const url = (`https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`);
+        //notes
+        let superagent = url
+        // building new city base on data from url then respnd with new city based on url
+
+        response.status(200).send();
+    }
 });
 
 // weather location 
 app.get('/weather', (request, response) => {
     let weatherData = require('./data/darksky.json');
-    let city = request.query.city;
-    let formattedObj = new WeatherData(city, weatherData);
 
-    let weather = [];
-    weather.push(formattedObj);
-    response.status(200).send(weather);
-})
+    let weatherResult = weatherData.data.map(day => {
+        return new WeatherData(day);
+    }); 
+    response.status(200).send(weatherResult);
+});
 
 
 
@@ -43,17 +47,10 @@ this.latitude = locationData[0].lat;
 this.longitude = locationData[0].lon;
 }
 
-function WeatherData(city, weatherData) {
-    this.time = weatherData.data.datetime;
-    this.forecast = weatherData.data.weather.description;
-    
-    }
-
-
-
-
-
-
+function WeatherData(day) {
+    this.forecast = day.weather.description;   
+    this.time = day.datetime;
+}
 
 
 app.use('*', (request, response) => response.send('Sorry, that route does not exist.'));
