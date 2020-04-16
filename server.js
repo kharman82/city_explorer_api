@@ -41,13 +41,39 @@ app.get('/location', (request, response) => {
 
 // weather location 
 app.get('/weather', (request, response) => {
-    let weatherData = require('./data/darksky.json');
-
-    let weatherResult = weatherData.data.map(day => {
-        return new WeatherData(day);
-    }); 
-    response.status(200).send(weatherResult);
+    const { latitude, longitude } = request.query;
+    const key = process.env.WEATHER_API_KEY;
+    const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${key}`;
+  
+        superagent.get(url)
+            .then(weatherResponse => {
+                const data = weatherResponse.body.data;
+                const result = [];
+                data.forEach(item => {
+                  result.push(new WeatherData(item.datetime, item.weather.description));
+            });
+            response.send(result);
+        }).catch(error => handleError(error, request, response));
+    
 });
+
+app.get('/trails', (request, response) => {
+    const { latitude, longitude } = request.query;
+    const key = process.env.WEATHER_API_KEY;
+    const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${key}`;
+  
+        superagent.get(url)
+            .then(weatherResponse => {
+                const data = weatherResponse.body.data;
+                const result = [];
+                data.forEach(item => {
+                  result.push(new WeatherData(item.datetime, item.weather.description));
+            });
+            response.send(result);
+        }).catch(error => handleError(error, request, response));
+    
+});
+
 
 
 
@@ -59,12 +85,12 @@ this.latitude = locationData.lat;
 this.longitude = locationData.lon;
 }
 
-function WeatherData(day) {
-    this.forecast = day.weather.description;   
-    this.time = day.datetime;
+function WeatherData(day, forecast) {
+    this.forecast = forecast;   
+    this.time = new Date(day).toDateString();
 }
 
-function handleError(error, request, next){
+function handleError(error, request, response, next){
     response.status(500).send({status:500,responseText: 'sorry something went wrong'});
 }
 
