@@ -15,16 +15,28 @@ app.listen(PORT,() => console.log(`Listening on port ${PORT}`));
 
 app.get('/location', (request, response) => {
 
-    try{    
+    // try{    
         let city = request.query.city;
         let key = process.env.GEOCODE_API_KEY;
         const url = (`https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`);
         //notes
-        let superagent = url
-        // building new city base on data from url then respnd with new city based on url
+        superagent.get(url)
+            .then(locationResponse => {
+                const data = locationResponse.body;
+                for (var i in data) {
+                    if (data[i].display_name.search(city)) {
+                        const display = new City(city,data[i]);
+                        response.send(display);
+                    }
+                }
+            })
 
-        response.status(200).send();
-    }
+        // building new city base on data from url then respnd with new city based on url
+        .catch(error =>{
+            handleError(error, request, respnse);
+        });
+        // response.status(200).send();
+    // }
 });
 
 // weather location 
@@ -42,14 +54,18 @@ app.get('/weather', (request, response) => {
 // constructor function 
 function City(city, locationData) {
 this.search_query = city;
-this.formatted_query = locationData[0].display_name;
-this.latitude = locationData[0].lat;
-this.longitude = locationData[0].lon;
+this.formatted_query = locationData.display_name;
+this.latitude = locationData.lat;
+this.longitude = locationData.lon;
 }
 
 function WeatherData(day) {
     this.forecast = day.weather.description;   
     this.time = day.datetime;
+}
+
+function handleError(error, request, next){
+    response.status(500).send({status:500,responseText: 'sorry something went wrong'});
 }
 
 
