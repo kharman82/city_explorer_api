@@ -4,12 +4,13 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const superagent = require('superagent');
+const pg = require('pg');
+const dbClient = new pg.Client(process.env.DATABASE_URL);
 const cors = require('cors');
 app.use(cors());
 const PORT = process.env.PORT || 3001;
 
 
-app.listen(PORT,() => console.log(`Listening on port ${PORT}`));
 
 // Getting a location 
 
@@ -19,21 +20,31 @@ app.get('/location', (request, response) => {
         let city = request.query.city;
         let key = process.env.GEOCODE_API_KEY;
         const url = (`https://us1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`);
-        //notes
-        superagent.get(url)
+        console.log('city', city)
+        let sql = 'SELECT * FROM locations WHERE search_query =$1;';
+        let safeValues = [city];
+
+        dbClient.query(sql, safeValues)
             .then(locationResponse => {
-                const data = locationResponse.body;
-                for (var i in data) {
-                    if (data[i].display_name.search(city)) {
-                        const display = new City(city,data[i]);
-                        response.send(display);
-                    }
+                if (locationResponse.rows[0]) {
+                    response.send(locationResponse.rows[0]);
+                } else {
+                    superagent.get(url)
+                        .then(locationResponse => {
+                            const data = locationResponse.body;
+                            for (var i in data) {
+                                if (data[i].display_name.search(city)) {
+                                    const display = new City(city,data[i]);
+                                    response.send(display);
+                                }
+                            }
+                        })
                 }
             })
 
         // building new city base on data from url then respnd with new city based on url
         .catch(error => {
-            handleError(error, request, respnse);
+            handleError(error, request, response);
         });
         // response.status(200).send();
     // }
@@ -107,6 +118,10 @@ function Trails(trail) {
     this.condition_date = trail.conditionDate;
     this.condition_time = trail.conditionTime;
   }
-
-
 app.use('*', (request, response) => response.send('Sorry, that route does not exist.'));
+
+dbClient.connect()
+  .then(() => {
+    app.listen(PORT,() => console.log(`Listening on port ${PORT}`));
+
+})
