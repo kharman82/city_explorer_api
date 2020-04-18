@@ -1,5 +1,5 @@
 # city_explorer_api
-Lab06
+Lab06 - Lab08
 
 Number and name of feature: #1 Full Setup
 
@@ -23,24 +23,24 @@ Actual time needed to complete:
 
 ___________________________________
 
-Number and name of feature: 
+Number and name of feature: 4 Trails
 
-Estimate of time needed to complete: 
+Estimate of time needed to complete:  2hs
 
-Start time:
+Start time:10am 
 
-Finish time: 
+Finish time: 1230pm
 
-Actual time needed to complete:
+Actual time needed to complete:2.5hrs
 
 ________________________________
 
-Number and name of feature: 
+Number and name of feature: 1 Database 
  
 
-Estimate of time needed to complete: 
+Estimate of time needed to complete: 2hrs
 
-Start time: 
+Start time: 1235pm
 
 Finish time: 
 
@@ -69,4 +69,9 @@ City Explorer
 
 ## Credits and Collaborations
 Peyton Cysewski
+Chance Harmon
+Joe Lee
+Paul Depuew
+Brandon Gibbs
+Kent Sheats
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
