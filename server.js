@@ -40,7 +40,7 @@ app.get('/location', (request, response) => {
                             dbClient.query(insertSQL, searchValues);
 
                         }).catch(error => {
-                            handleError(error, request, response);
+                            handleError(error, request, response);  
                         })
                     }
             })
