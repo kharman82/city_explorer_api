@@ -46,6 +46,19 @@ Finish time:
 
 Actual time needed to complete:
 ____________________________________
+Number and name of feature: SQL Cont 
+ 
+
+Estimate of time needed to complete: 2hrs
+
+Start time: 428pm
+
+Finish time: 831pm
+
+Actual time needed to complete:4hrs
+_______________________________________
+
+
 # Project Name 
 City Explorer
 
