@@ -31,24 +31,22 @@ app.get('/location', (request, response) => {
                 } else {
                     superagent.get(url)
                         .then(locationResponse => {
-                            const data = locationResponse.body;
-                            for (var i in data) {
-                                if (data[i].display_name.search(city)) {
-                                    const display = new City(city,data[i]);
-                                    response.send(display);
-                                }
-                            }
+                            const data = locationResponse.body[0];
+                            let location = new City(city, data);
+                            response.status(200).send(location);
+
+                            const insertSQL = 'INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);';
+                            const searchValues = [city, location.formatted_query, location.latitude, location.longitude];
+                            dbClient.query(insertSQL, searchValues);
+
+                        }).catch(error => {
+                            handleError(error, request, response);
                         })
-                }
+                    }
             })
 
         // building new city base on data from url then respnd with new city based on url
-        .catch(error => {
-            handleError(error, request, response);
-        });
-        // response.status(200).send();
-    // }
-});
+})
 
 // weather location 
 app.get('/weather', (request, response) => {
@@ -62,11 +60,13 @@ app.get('/weather', (request, response) => {
                 const result = [];
                 data.forEach(item => {
                   result.push(new WeatherData(item.datetime, item.weather.description));
-            });
+            })
             response.send(result);
-        }).catch(error => handleError(error, request, response));
+        }).catch(error => {
+            handleError(error, request, response);
+        })
     
-});
+})
 
 app.get('/trails', (request, response) => {
     const {latitude, longitude} = request.query;
@@ -76,18 +76,13 @@ app.get('/trails', (request, response) => {
         superagent.get(url)
             .then(trailResponse => {
                 const data = trailResponse.body.trails;
-                response.send(data.map(element => {
-                return new Trails(element);
-                }));
+                response.send(data.map(element => new Trails(element)))
                
-                }).catch(error => handleError(error, request, response));
-            });
+                }).catch(error => {
+                    handleError(error, request, response);
+                })
+})
            
-    
-
-
-
-
 
 // constructor function 
 function City(city, locationData) {
@@ -123,5 +118,9 @@ app.use('*', (request, response) => response.send('Sorry, that route does not ex
 dbClient.connect()
   .then(() => {
     app.listen(PORT,() => console.log(`Listening on port ${PORT}`));
-
+    
+}).catch(err => {
+   console.log('Sorry not connected', err);
+   response.status(500).send(err);
 })
+
